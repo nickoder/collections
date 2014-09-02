@@ -85,7 +85,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> {
 	public E peek() {
 		return array[0];
 	}
-
+	
 	@Override
 	public Iterator<E> iterator() {
 		// TODO Auto-generated method stub
@@ -97,4 +97,11 @@ public class PriorityQueue<E> extends AbstractQueue<E> {
 		return size;
 	}
 
+	@Override
+	public void clear() {
+		for(int i = 0; i < array.length; i++) {
+			array[i] = null;
+		}
+		size = 0;
+	}
 }
