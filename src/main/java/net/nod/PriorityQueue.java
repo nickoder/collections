@@ -4,6 +4,7 @@ import java.util.AbstractQueue;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class PriorityQueue<E> extends AbstractQueue<E> {
 	
@@ -25,6 +26,10 @@ public class PriorityQueue<E> extends AbstractQueue<E> {
 		this.comparator = comparator;
 	}
 	
+	public PriorityQueue(int initialSize, Comparator<? super E> comparator){
+		this(DEFAULT_BASE, initialSize, comparator);
+	}
+	
 	public PriorityQueue(Comparator<? super E> comparator){
 		this(DEFAULT_BASE, DEFAULT_SIZE, comparator);
 	}
@@ -34,9 +39,14 @@ public class PriorityQueue<E> extends AbstractQueue<E> {
 		return (E[]) new Object[initialSize];
 	}
 	
+	private void grow(){
+		int newSize = array.length + array.length / 2;
+		array = Arrays.copyOf(array, newSize);
+	}
+	
 	public boolean offer(E e) {
-		if(size == array.length){
-			return false;
+		if(size >= array.length){
+			grow();
 		}
 		bubbleUp(e, size);
 		size++;
@@ -57,13 +67,15 @@ public class PriorityQueue<E> extends AbstractQueue<E> {
 			return null;
 		}
 		E r = array[0];
+		array[0] = null;
 		size--;
-		sinkDown(array[size]);
+		if(size != 0){
+			sinkDown(0, array[size]);
+		}	
 		return r;
 	}
 
-	private void sinkDown(E e){
-		int i = 0;
+	private void sinkDown(int i, E e){
 		while(i < size - 1){
 			int j = i * base + 1;
 			int t = Math.min((i + 1) * base, size);
@@ -88,10 +100,46 @@ public class PriorityQueue<E> extends AbstractQueue<E> {
 	
 	@Override
 	public Iterator<E> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return new It();
 	}
+	
+	private class It implements Iterator<E> {
+		
+		private int position = 0;
+		
+		@Override
+		public boolean hasNext() {
+			return position < array.length && array[position] != null;
+		}
 
+		@Override
+		public E next() {
+			if(array[position] == null){
+				throw new NoSuchElementException();
+			}
+			return array[position++];
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+	
+	//TODO
+	private void removeAt(int i){
+		
+	}
+	
+	private int indexOf(E e){
+		for(int i = 0; i < array.length; i++){
+			if(array[i] == e){
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	@Override
 	public int size() {
 		return size;
